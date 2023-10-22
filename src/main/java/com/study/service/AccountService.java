@@ -6,7 +6,9 @@ import com.study.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +16,9 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void processNewAccount(SignUpFormDto signUpFormDto) {
         Account newAccount = saveNewAccount(signUpFormDto);
         newAccount.generateEmailCheckToken();
@@ -25,7 +29,7 @@ public class AccountService {
         Account account = Account.builder()
                 .email(signUpFormDto.getEmail())
                 .nickname(signUpFormDto.getNickname())
-                .password(signUpFormDto.getPassword())
+                .password(passwordEncoder.encode(signUpFormDto.getPassword()))
                 .studyCreatedByWeb(true)
                 .studyEnrollmentResultByWeb(true)
                 .studyUpdatedByWeb(true)
